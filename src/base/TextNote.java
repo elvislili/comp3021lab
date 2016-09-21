@@ -13,6 +13,11 @@ public class TextNote extends Note {
 		this.content = textnote;
 	}
 	
+	public TextNote(String title,String content){
+		super(title);
+		this.content = content;
+	}
+	
 	public String getContent() {
 		return this.content;
 	}
