@@ -1,75 +1,156 @@
 package base;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-import static java.lang.System.out;
-
-public class NoteBook {
+public class NoteBook implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Folder> folders;
 	
-	public NoteBook(){
+	public NoteBook (){
+		
 		folders = new ArrayList<Folder>();
 	}
 	
-	public boolean createTextNote(String a, String b){
-		TextNote note = new TextNote(b);
-		return insertNote(a, note);
-	}
-	public boolean createTextNote(String foldername,String title,String content){
-		TextNote note = new TextNote(title,content);
-		return insertNote(foldername,note);
-	}	
-	
-	public boolean createImageNote(String a, String b){
-		ImageNote note = new ImageNote(b);
-		return insertNote(a, note);
-	}
-	
-	public boolean insertNote(String a, Note b){
-		Folder f = null;
-		for (Folder f1:folders){
-			if(f1.getName().equals(a)){
-				f = f1;
+	public NoteBook(String file){
+		// TODO
+		FileInputStream fis = null;
+		ObjectInputStream in = null;
+		
+		try {
+				fis = new FileInputStream(file);
+				in = new ObjectInputStream(fis);
+				NoteBook loadedObject = (NoteBook) in.readObject();
+				this.folders = loadedObject.getFolders();
+				in.close();
+				
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
+	
 		
-		if (f == null){
-			f = new Folder(a);
-			folders.add(f);
-		}
 		
-		for (Note n : f.getNotes()){
-			if(n.equals(b)){
-				System.out.println("Create note " + b.getTitle() + " under folder " + a + " failed");
-				return false;
-			}
 		}
-		
-		f.addNote(b);
-		System.out.println("Create note " + b.getTitle() + " under folder " + a);
-		return true;
+	
 
-	}
-	public ArrayList<Folder> getFolders(){
+	
+	public ArrayList<Folder> getFolders (){
+		
 		return folders;
 	}
 	
-	public void sortFolders(){
-		for(Folder f:folders){
-			f.sortNotes();
+	public boolean insertNote (String foldername, Note note){
+		
+		Folder f = null;
+		boolean canInsert = true;
+		
+		for (Folder f1: folders){
+			
+			if(foldername.equals(f1.getName())){
+				f = f1;
+			}
+		
 		}
-		//List<Folder> folders = new ArrayList<Folder>();
-		Collections.sort(this.folders);
-	
+		
+		if(f == null){
+			
+			f = new Folder(foldername);
+			
+			 folders.add(f);
+		}
+		
+		for (Note n: f.getNotes()){
+			
+			if(n.getTitle().equals(note.getTitle())){
+				
+				System.out.println("Creating note " + note.getTitle() + " under folder " + foldername + " failed.");
+				canInsert = false;
+			}
+			
+		}
+		
+		if(canInsert != false){
+			
+			f.addNote(note);
+			canInsert = true;
+		}
+		
+		
+		return canInsert;
+		
+		
+		
+		
 	}
 	
-	public List<Note> searchNotes(String keywords){
-		List<Note> resultnote = new ArrayList<Note>();
-		for(Folder f:folders){
-			resultnote.addAll(f.searchNotes(keywords));
-		}
-		return resultnote;
+	public boolean createTextNote (String foldername, String title, String content){
+		
+		TextNote note = new TextNote(title, content);
+		return insertNote (foldername, note);
 	}
 	
+public boolean createImageNote (String foldername, String title){
+		
+		ImageNote note = new ImageNote (title);
+		return insertNote (foldername, note);
+	}
+
+public void sortFolders (){
+	
+	for (Folder folder : folders){
+		folder.sortNotes();
+		
+	}
+	
+	Collections.sort(this.folders);
+	
+	
+	
+}
+
+public ArrayList<Note> searchNotes(String keywords){
+	
+	ArrayList<Note> result = new ArrayList<Note> ();
+	
+	
+	for (Folder eachFolder : folders){
+		
+		result.addAll(eachFolder.searchNote(keywords));
+		
+	}
+	
+	return result;
+	
+}
+
+public boolean save(String file){
+//TODO
+	FileOutputStream fos = null;
+	ObjectOutputStream out = null;
+	
+	try {
+	//TODO
+		fos = new FileOutputStream(file);
+		out = new ObjectOutputStream(fos);
+		out.writeObject(this);
+		out.close();
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+		return false;
+	}
+	
+return true;
+}
+	
+
 }

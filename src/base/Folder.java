@@ -1,177 +1,225 @@
 package base;
+
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-public class Folder implements Comparable<Folder>{
-	private String name;
-	private ArrayList<Note> notes;
+
+public class Folder implements Comparable<Folder>, Serializable{
 	
-	Folder(){
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private ArrayList<Note> notes;
+	private String name;
+	
+	public Folder (String name) {
+	
+		this.name = name;
+		notes = new ArrayList<Note>();
 		
 	}
 	
-	public Folder (String a){
-		this.name = a;
-		this.notes = new ArrayList<Note>();
+	public void addNote (Note oneNote){
+		
+		notes.add(oneNote);
 	}
 	
-	public void addNote (Note note){
-		notes.add(note);
-	}
-	
-	public String getName() {
-		return this.name;
+	public String getName (){
+		
+		return name;
 	}
 	
 	public ArrayList<Note> getNotes(){
+		
 		return notes;
 	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+	public String toString () {
+		
+		int nText = 0;
+		int nImage = 0;
+		
+		for (Note eachNote : notes){
+			
+			if(eachNote instanceof ImageNote){
+				
+				
+				nImage = nImage + 1;
+				
+		
+				
+			}else if (eachNote instanceof TextNote){
+				
+				
+				nText = nText + 1;
+				
+		
+			}
+		}
+		
+
+		return name + ":" + nText + ":" + nImage;
+		
+	
+		
+		
+	}
+	
+	public boolean equals (Folder otherFolder){
+		
+		if(otherFolder.getName().equals(this.name)){
+			
+			return true;
+		}else{
+			
+			return false;
+		}
+		
+	}
+	
+	public void sortNotes (){
+		
+		Collections.sort(notes);
+		
+	}
+	
+	public int compareTo(Folder otherFolder){
+		
+		if (name.compareTo(otherFolder.getName()) > 0 ){
+			
+			//the current name is greater than the argument name
+			return 1;
+			
+		}else if ( name.compareTo(otherFolder.getName()) < 0 ){
+			
+			return -1;
+		}else {
+			
+			return 0;
+		}
+	}
+	
+	public ArrayList<Note> searchNote (String keywords){
+		
+		
+		keywords = keywords.toLowerCase();
+		//System.out.println("Print out the keywords: " + keywords);
+		String keyPair [] = keywords.split(" ");
+	
+		ArrayList <String []> or_condition = new ArrayList <String []> ();
+		
+		ArrayList<Note> result = new ArrayList<Note> ();
+		
+		
+		
+		for (int i=0; i < keyPair.length; i++){
+			
+			if(keyPair[i].equals("or")){
+				
+				String pairs [] = {keyPair[i-1],keyPair[i+1] };
+				or_condition.add(pairs);
+			}
+		}
+		
+		/*System.out.println("Print out the or_condition array of array:");
+		for (int i=0; i < or_condition.size(); i++){
+			
+		System.out.println(or_condition.get(i)[0] + " " + or_condition.get(i)[1]);
+			
+		}*/
+		
+		
+		
+		for (Note eachNote : notes){
+			
+			boolean foundInImageNote = true;
+			
+			if(eachNote instanceof ImageNote){
+				
+				for (int i=0; i < or_condition.size(); i++){
+					
+					if(eachNote.getTitle().toLowerCase().contains(or_condition.get(i)[0]) ||
+					eachNote.getTitle().toLowerCase().contains(or_condition.get(i)[1]) ){
+						
+					/*System.out.println("The ImageNote title is " +  eachNote.getTitle() +
+						" and the key pairs are " + or_condition.get(i)[0] +" and " + or_condition.get(i)[1] + " ");*/
+						
+					}else{
+						/*System.out.println("Key pairs: "+ or_condition.get(i)[0] +" and " + or_condition.get(i)[1] + " is not contained"
+								+ " in ImageNote title: " + eachNote.getTitle());*/
+						foundInImageNote = false;
+					}
+				}
+				
+				if(foundInImageNote){
+					
+					result.add(eachNote);
+				}
+				
+			}else if (eachNote instanceof TextNote){
+				
+				TextNote tempTextNote = (TextNote) eachNote;
+				
+				boolean foundInTextNoteTitle = true;
+				
+				for (int i=0; i < or_condition.size(); i++){
+					
+					if(tempTextNote.getTitle().toLowerCase().contains(or_condition.get(i)[0]) ||
+							tempTextNote.getTitle().toLowerCase().contains(or_condition.get(i)[1]) ){
+						
+						/*System.out.println("The TextNote title is " +  eachNote.getTitle() +
+								" and the key pairs are " + or_condition.get(i)[0] +" and " + or_condition.get(i)[1] + " ");*/
+						
+					}else{
+						/*System.out.println("Key pairs: "+ or_condition.get(i)[0] +" and " + or_condition.get(i)[1] + " is not contained"
+								+ " in TextNote title: " + eachNote.getTitle());*/
+						
+						foundInTextNoteTitle = false;
+					}
+				}
+				
+				if(foundInTextNoteTitle){
+					
+					result.add(tempTextNote);
+				}
+				
+				boolean foundInTextNoteContent = true;
+				
+				for (int i=0; i < or_condition.size(); i++){
+					
+					
+					if(tempTextNote.getContent().toLowerCase().contains(or_condition.get(i)[0]) 
+							|| tempTextNote.getContent().toLowerCase().contains(or_condition.get(i)[1])){
+					
+						
+						
+					}else{
+						
+						 foundInTextNoteContent = false;
+					}
+					 
+					
+					
+				}
+				
+				
+				if(foundInTextNoteContent){
+					
+					result.add(tempTextNote);
+				}
+				
+			} // end of else - here the note is textNote
+			
+		} //end of for loop
+		
+		
 		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Folder other = (Folder) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
-	
-	public String toString() {
-		int numoftext = 0;
-		int numofimage = 0;
-		
-		for (int i=0; i<notes.size(); i++){
-			Object newnote = new Note();
-			newnote = notes.get(i);
-			if(newnote instanceof TextNote){
-				numoftext++;
-			}
-			else if(newnote instanceof ImageNote){
-				numofimage++;
-			}
-		}
-		
-		String output = this.name + ":" + numoftext + ":" + numofimage;
-		
-		return output;
 		
 	}
 	
-	public int compareTo(Folder f){
-		return this.name.compareTo(f.getName());
-	}
 	
-	public void sortNotes(){
-		//List<Note> notes = new ArrayList<Note>();
-		Collections.sort(this.notes);
-	}
 	
-	public List<Note> searchNotes (String keywords){
-		String key = keywords.toLowerCase();
-		String[] keys = key.split(" ");
-		for(int i = 0;i < keys.length;i++)
-			keys[i] = keys[i].trim();
-		
-		List<Note> resultnotes = new ArrayList<Note>();
-		
-		for(Note n:notes){
-			TextNote tn = null;
-			if(n instanceof TextNote){
-				tn = (TextNote)n;
-				int i = 0;
-				while(i < keys.length){
-					if(i == keys.length - 1){
-						if(tn.getTitle().matches(".*"+keys[i]+".*")||tn.getContent().matches(".*"+keys[i]+".*")){
-							resultnotes.add(tn);
-						}
-						i++;
-					}
-					else if((i == keys.length-3 )&&( keys[i+1].equals("or"))){
-						if((tn.getTitle().matches(".*"+keys[i]+".*")||tn.getContent().matches(".*"+keys[i]+".*"))||(tn.getTitle().matches(".*"+keys[i+2]+".*")||tn.getContent().matches(".*"+keys[i+2]+".*")))
-							resultnotes.add(tn);
-						i++;
-					}
-					else if((keys[i+1].equals("or"))&&(i != keys.length-2)){
-						if(!((tn.getTitle().matches(".*"+keys[i]+".*")||tn.getContent().matches(".*"+keys[i]+".*"))||(tn.getTitle().matches(".*"+keys[i+2]+".*")||tn.getContent().matches(".*"+keys[i+2]+".*")))){
-							break;
-						}
-						else{
-							i = i + 3;
-							while(keys[i].equals("or")&&i<keys.length){
-								i += 2;
-							}
-						}
-					}
-					else{
-						if(!(tn.getTitle().matches(".*"+keys[i]+".*")||tn.getContent().matches(".*"+keys[i]+".*"))){
-							break;
-						}
-						i++;
-					}
-				}
-			}
-			else{
-				int i = 0;
-				while(i < keys.length){
-					if(i == keys.length-1){
-						if(match(keys[i],n.getTitle())){
-							resultnotes.add(n);
-						}
-						i++;
-					}
-					else if((i == keys.length - 3 )&&( keys[i+1].equals("or"))){
-						if(match(keys[i],n.getTitle().toLowerCase()) || match(keys[i+2],n.getTitle().toLowerCase())){
-							resultnotes.add(n);
-						}
-						i++;
-					}
-					else if((keys[i+1].equals("or"))&&(i != keys.length-2)){
-						if(!(match(keys[i],n.getTitle().toLowerCase()) || match(keys[i+2],n.getTitle().toLowerCase())) ){
-							break;
-						}
-						else{
-							
-							i = i + 3;
-							while(keys[i].equals("or")&&i<keys.length){
-								i = i + 2;
-							}
-						}
-					}
-					else{
-						if(!(match(keys[i],n.getTitle() ))){
-							break;
-						}
-						else{
-							i++;
-						}
-					}
-				}
-			}
-		}
-		return resultnotes;	
-	}
-	private boolean match(String key,String a){
-		if(a.matches(".*"+key+".*")||a.matches(".*"+key)||a.matches(key+".*")){
-			return true;
-		}
-		return false;
-	}
 }

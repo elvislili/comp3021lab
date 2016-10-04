@@ -1,22 +1,19 @@
 package base;
-import java.io.*;
 
-public class ImageNote extends Note {
+import java.io.File;
+
+public class ImageNote extends Note{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private File image;
 	
-	ImageNote() {
+	public ImageNote(String title){
+		
+		super(title);
 	}
 	
-	public ImageNote (String imagenote){
-		super(imagenote);
-	}
 	
-	public File getImage() {
-		return this.image;
-	}
-	
-	public void setImage (File imagenote){
-		this.image = imagenote;
-	}
 }
