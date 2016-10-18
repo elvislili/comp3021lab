@@ -1,62 +1,67 @@
 package base;
-
 import java.io.Serializable;
 import java.util.Date;
 
-public class Note implements Comparable<Note>, Serializable{
+public class Note implements Comparable<Note>,Serializable{
+	
+	
+	/**
+	 * Default ID
+	 */
+	private static final long serialVersionUID = 1L;
 	private Date date;
 	private String title;
-	private static final long serialVersionUID = 1L;
 	
-	public Note (String title) {
-		
-		this.title = title;
-		this.date = new Date(System.currentTimeMillis());
-		
+	public Note(String title){
+		this.title=title;
+		date=new Date(System.currentTimeMillis());
 	}
 	
-	public String getTitle (){
-		
+	public String getTitle(){
 		return this.title;
 	}
-	
-	public Date getDate (){
-		
+	public Date getDate(){
 		return this.date;
 	}
-	
-	public boolean equals(Note otherNote){
-		
-		if(otherNote.getTitle() == this.title){
-			
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		}else{
-			
+		if (obj == null)
 			return false;
-		}
+		Note other = (Note) obj;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		return true;
 	}
-	
-	public int compareTo (Note otherNote){
-		
-		if ( date.before(otherNote.getDate()) ){
-			// date is more recent
-			
+
+	@Override
+	public int compareTo(Note o) {
+		long comp=this.date.getTime()-o.getDate().getTime();
+		if (comp<0)
 			return 1;
-			
-		}else if (date.after(otherNote.getDate())){
-			
+		else if (comp>0)
 			return -1;
-		}else{
-			
+		else 
 			return 0;
-		}
 		
 	}
-	
-	public String toString (){
-		
+
+	@Override
+	public String toString() {
 		return date.toString() + "\t" + title;
 	}
-	
 
 }
