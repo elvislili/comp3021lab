@@ -109,7 +109,7 @@ public class LettersUI extends Application {
 		
 		}				
 	}
-	class MyTask implements Runnable {
+	class MyTask implements Runnable { 
 
 		int timeBudgetms = 5 * 60 * 1000;
 		LettersUI instance;
